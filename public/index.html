@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>금융 자료 수집 · 정리</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header>
+  <h1>금융 자료 수집 · 정리</h1>
+  <nav class="tabs" id="tabs">
+    <button data-tab="aside" class="on">① 수집 지시 (Aside)</button>
+    <button data-tab="data">② 자료 정리</button>
+    <button data-tab="sum">③ 항목별 집계</button>
+    <button data-tab="erp">④ ERP 자료 🔒</button>
+    <button data-tab="guide">사용 안내</button>
+  </nav>
+  <button class="theme" id="themeBtn" title="화면 밝기">◐</button>
+</header>
+
+<main>
+  <!-- ① Aside 수집 지시 -->
+  <section class="view on" id="view-aside">
+    <div class="note">카드 · 계좌 · 홈택스 자료는 AI 브라우저 <b>Aside</b> 가 대신 조회 · 내려받기를 합니다.
+      아래에서 작업지시를 만들어 Aside 에 붙여넣으세요. <b>공동인증서 · OTP 로그인은 본인이 직접</b> 하고, 나머지를 Aside 가 진행합니다.</div>
+    <div class="grid2">
+      <div class="card">
+        <h2>작업지시 만들기</h2>
+        <p class="hint" style="margin-bottom:6px">자주 쓰는 기관</p>
+        <div class="btns" id="favs" style="margin-bottom:12px"></div>
+        <div class="row"><label class="f wide"><span>무엇을 가져올까요</span><select id="taskType"></select></label></div>
+        <div class="row" id="orgRow">
+          <label class="f"><span id="orgLabel">기관 이름</span><input type="text" id="taskOrg" placeholder="예: 기업은행"></label>
+          <label class="f"><span id="targetLabel">계좌 · 카드</span><input type="text" id="taskTarget" placeholder="예: 법인 주거래 통장(끝 1234)"></label>
+        </div>
+        <div class="row">
+          <label class="f"><span>시작일</span><input type="date" id="taskFrom"></label>
+          <label class="f"><span>종료일</span><input type="date" id="taskTo"></label>
+        </div>
+        <div class="btns" id="quickRange"></div>
+        <p class="hint" style="margin-top:10px">저장 폴더(수집함): <code id="inboxPath">…</code>
+          <button class="btn small" id="openInbox">폴더 열기</button></p>
+      </div>
+      <div class="card">
+        <h2>Aside 에 붙여넣을 문구</h2>
+        <textarea id="taskText" rows="16" readonly></textarea>
+        <div class="btns" style="margin-top:8px"><button class="btn primary" id="copyTask">복사</button>
+          <span class="muted">Aside 를 열고 채팅창에 붙여넣으세요. 다 받으면 ② 자료 정리로 가세요.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ② 자료 정리 -->
+  <section class="view" id="view-data">
+    <div class="card">
+      <h2>수집함 자료</h2>
+      <p class="hint">수집함 폴더의 엑셀(.xlsx) · CSV · 은행 엑셀 파일을 읽어 카드 · 계좌 · 세금계산서 · 현금영수증으로 알아보고 하나로 합칩니다.
+        여러 파일에 같은 거래가 있으면 한 번만 셉니다. 파일을 여기에 끌어다 놓아도 수집함에 들어갑니다.</p>
+      <div class="drop" id="drop">여기에 파일을 끌어다 놓거나 <label class="link">파일 고르기<input type="file" id="pick" multiple accept=".xlsx,.xls,.csv,.txt,.html" hidden></label></div>
+      <div class="btns" style="margin:10px 0"><button class="btn primary" id="reload">다시 읽기</button><button class="btn" id="openInbox2">수집함 폴더 열기</button><span class="muted" id="loadMsg"></span></div>
+      <div id="reports"></div>
+    </div>
+    <div class="card">
+      <div class="row">
+        <label class="f"><span>종류</span><select id="fKind"></select></label>
+        <label class="f"><span>항목</span><select id="fCat"></select></label>
+        <label class="f"><span>월</span><select id="fMonth"></select></label>
+        <label class="f"><span>검색 (거래처 · 적요)</span><input type="text" id="fText"></label>
+      </div>
+      <div class="btns" style="margin-bottom:8px"><span id="fCount" class="muted"></span><span class="sp"></span><button class="btn" id="exportRows">이 목록 CSV 저장</button></div>
+      <div class="tablewrap"><table class="grid" id="rowsTable"></table></div>
+    </div>
+  </section>
+
+  <!-- ③ 항목별 집계 -->
+  <section class="view" id="view-sum">
+    <div class="card">
+      <h2>항목별 · 월별 집계</h2>
+      <p class="hint">나간 돈(카드 · 계좌 출금 · 현금영수증 · 사업용카드)과 들어온 돈(계좌 입금)을 항목별로 더합니다. 세금계산서는 매출 · 매입 공급가액으로 따로 봅니다.
+        항목은 ② 자료 정리에서 행마다 바꿀 수 있습니다.</p>
+      <div class="btns" style="margin-bottom:10px"><button class="btn" id="exportSum">집계 CSV 저장</button></div>
+      <div id="sumOut"></div>
+    </div>
+  </section>
+
+  <!-- ④ ERP -->
+  <section class="view" id="view-erp">
+    <div class="card" id="erpLocked">
+      <h2>🔒 회사 ERP 자료 수집</h2>
+      <p class="hint">이 기능과 <b>ERP 접속 주소 · 메뉴 안내</b>는 배포자에게 받은 <b>앱 인증키</b>로 로그인해야 보입니다.
+        인증키는 ERP 로그인 정보와 다릅니다(ERP 로그인은 Aside 화면에서 본인이 직접 합니다).</p>
+      <div class="row">
+        <label class="f"><span>인증키</span><input type="password" id="erpKey" placeholder="SMK-XXXX-XXXX-XXXX-XXXX" autocomplete="off"></label>
+        <button class="btn primary" id="erpUnlock">열기</button>
+      </div>
+      <p class="err" id="erpErr"></p>
+    </div>
+    <div id="erpOpen" hidden>
+      <div class="card">
+        <div class="btns"><h2 style="margin:0" id="erpTitle">ERP 자료 수집</h2><span class="sp"></span><span class="muted" id="erpWho"></span><button class="btn small" id="erpLock">잠그기</button></div>
+        <p class="hint" id="erpConnect" style="margin:8px 0 0"></p>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <h3>항목 고르기</h3>
+          <div class="checks" id="erpItems"></div>
+          <p class="hint" id="erpNotice"></p>
+          <div class="row"><label class="f"><span>다른 화면 (쉼표, 조회 화면만)</span><input type="text" id="erpExtra" placeholder="메뉴 경로를 적으세요"></label></div>
+          <div class="row">
+            <label class="f"><span>시작일</span><input type="date" id="erpFrom"></label>
+            <label class="f"><span>종료일</span><input type="date" id="erpTo"></label>
+          </div>
+          <p class="hint">ERP 수집함: <code id="erpPath">…</code> <button class="btn small" id="openErp">폴더 열기</button></p>
+        </div>
+        <div class="card">
+          <h3>Aside 에 붙여넣을 문구</h3>
+          <textarea id="erpTask" rows="14" readonly></textarea>
+          <div class="btns" style="margin-top:8px"><button class="btn primary" id="copyErp">복사</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>ERP 수집함 자료 (항목별)</h3>
+        <div class="drop" id="erpDrop">ERP 에서 받은 파일을 여기에 끌어다 놓거나 <label class="link">파일 고르기<input type="file" id="erpPick" multiple accept=".xlsx,.xls,.csv,.txt,.html" hidden></label></div>
+        <div class="btns" style="margin:10px 0"><button class="btn primary" id="erpReload">다시 읽기</button><span class="muted" id="erpMsg"></span></div>
+        <div id="erpOut"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 사용 안내 -->
+  <section class="view" id="view-guide">
+    <div class="card guide">
+      <h2>사용 안내</h2>
+      <h3>흐름</h3>
+      <ol>
+        <li><b>① 수집 지시</b>에서 가져올 자료(홈택스 · 은행 · 카드)와 기간을 고르고 문구를 복사합니다.</li>
+        <li><b>Aside</b> 에 붙여넣습니다. 로그인 화면에서 Aside 가 멈추면 공동인증서 · OTP 로그인을 직접 하고, 계속하라고 말합니다.</li>
+        <li>Aside 가 엑셀을 <b>수집함</b> 폴더에 내려받으면, <b>② 자료 정리</b>에서 <b>다시 읽기</b>를 누릅니다.</li>
+        <li>항목이 틀린 행은 바꾸고, <b>③ 항목별 집계</b>에서 월별 합계를 보거나 CSV 로 저장합니다.</li>
+        <li>회사 ERP 자료는 <b>④ ERP 자료</b>에서 인증키로 로그인하면 접속 안내가 나오고, 같은 방식으로 모읍니다.</li>
+      </ol>
+      <h3>안전하게 쓰기</h3>
+      <ul>
+        <li>모든 자료는 이 PC 안에서만 읽고 정리합니다. 인터넷으로 보내지 않습니다.</li>
+        <li>Aside 작업지시에는 "조회 · 내려받기만, 이체 · 결제 · 설정 변경 금지" 가 들어 있습니다. 그래도 Aside 가 무엇을 누르는지 지켜보세요.</li>
+        <li>은행 · 카드 비밀번호나 인증서 암호를 Aside 채팅에 적지 마세요.</li>
+        <li>수집함의 파일에는 계좌 · 카드 정보가 들어 있습니다. 다 쓰면 지우거나 안전한 곳으로 옮기세요.</li>
+      </ul>
+      <h3>파일이 안 읽힐 때</h3>
+      <ul>
+        <li>예전 엑셀(.xls) 이면 엑셀에서 열어 <b>다른 이름으로 저장 → Excel 통합 문서(.xlsx)</b> 로 저장하세요.</li>
+        <li>종류를 못 알아보면 파일 이름에 "카드" · "거래내역" · "세금계산서_매출" 같은 말을 넣어 주세요.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<script src="/rules.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

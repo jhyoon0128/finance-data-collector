@@ -1,0 +1,6 @@
+# macOS 실행 스크립트는 LF 여야 돈다. Windows 배치 파일은 CRLF 여야 안전하다. 예시 엑셀은 바이너리.
+*.sh   text eol=lf
+*.bat  text eol=crlf
+*.xlsx binary
+*.xls  binary
+*      text=auto

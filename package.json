@@ -1,0 +1,14 @@
+﻿{
+  "name": "finance-data-collector",
+  "version": "1.1.1",
+  "private": true,
+  "type": "module",
+  "description": "Aside 로 받은 카드 · 계좌 · 홈택스 자료를 항목별로 정리하고, 회사 ERP 자료를 인증키로 모으는 로컬 앱 (외부 패키지 없음)",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "key": "node tools/make-key.mjs"
+  }
+}

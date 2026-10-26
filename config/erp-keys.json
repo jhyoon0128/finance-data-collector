@@ -1,0 +1,17 @@
+{
+  "note": "키 원문이 아니라 해시와 감싼 내용 키입니다. tools/make-key.mjs 로 관리하세요.",
+  "keys": [
+    {
+      "label": "윤지훈(배포자)",
+      "hash": "6b6f6b5ccd049df1f5690e63fcd58cec65e639ffea841145c6a44ab449cd09f6",
+      "issued": "2026-10-26",
+      "admin": true,
+      "salt": "446a70479e5cdd39f964e11c05532db7",
+      "wrapped": {
+        "iv": "c2b1d30982f6f43f98b93902",
+        "tag": "8348fd904b0136a417954caaffcdeb5a",
+        "data": "6gRZhqJ/essjBdSK9l2XyXIjIgXIzKaMVMTMjX9R2MU="
+      }
+    }
+  ]
+}
